@@ -50,3 +50,44 @@ def sim_pearson(prefs, p1, p2):
         return 0
 
     return num / den
+
+
+def top_matches(prefs, person, n=5, similarity=sim_pearson):
+    """Returns best matches for person from the pres dict.
+
+       Number of results and similarity function are optional paramters.
+    """
+    scores =[(similarity(prefs, person, other), other)
+            for other in prefs if other != person]
+
+    scores.sort()
+
+    return scores.reverse()[:n]
+
+
+def get_recommendations(prefs, person, similarity=sim_pearson):
+    """Gets receommendation for personby using a weighted average
+
+       of every other persons ratings.
+    """
+    totals, simsums = {}, {}
+    sim = [similarity(prefs, person, other)
+          for other in prefs if other != person]
+
+    if sim > 0:
+        for item in prefs[person]:
+
+            # only score unseen movies
+            if item not in prefs[person] or prefs[person][item] == 0:
+                totals.setdefault(item, 0)
+                totals[item] += prefs[other][item] * sim
+                sim_sums = setdefault(imte, 0)
+                sim_sums[item] += sim
+
+    # Create normalized lsit
+    rankings = [(total / sim_sums[item], item) for item, total in totals.items()]
+
+    rankings.sort()
+
+    return rankings.reverse()
+
