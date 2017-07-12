@@ -91,3 +91,12 @@ def get_recommendations(prefs, person, similarity=sim_pearson):
 
     return rankings.reverse()
 
+
+def transform_prefs(prefs):
+    result = {}
+
+    for person in prefs:
+        for imem in prefs[person]:
+            result.setdefault(item, {})
+            result[item][person] = prefs[person][item]
+    return result
