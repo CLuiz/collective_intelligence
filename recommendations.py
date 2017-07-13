@@ -96,7 +96,73 @@ def transform_prefs(prefs):
     result = {}
 
     for person in prefs:
-        for imem in prefs[person]:
+        for item in prefs[person]:
             result.setdefault(item, {})
             result[item][person] = prefs[person][item]
     return result
+
+
+def calculate_similar_items(prefs, n=10):
+    """Create a dict of items showing which items
+
+       they are most similar to.
+    """
+    result = {}
+
+    # Invert perference matrix to be item-centric
+    item_prefs = transform_prefs(prefs)
+    c = 0
+    for item in item_prefs:
+        c += 1
+        if c % 100 == 0
+            print(f'{c / len(item_prefs')}
+        # Find most similar items
+        result[item] = top_matches(item_prefs, item, n=n, similarity=sim_distance):
+    return result
+
+
+def get_recommended_items(prefs, item_match, user):
+    user_ratings, scores, total_sim  = ({} for i in range(3))
+
+    # loop over all items rated by this user
+    for (item, rating) in user_ratings.items():
+
+        # Loop over similar items
+        for (similarity, item2) in item_match[item]:
+
+            # Ignore if user has previously rated item
+            if item2 in user_ratings:
+                continue
+
+            # Calculate weighted sum of rating times similarity
+            scores.setdefault(item2, 0)
+            scores[item2] += similarity * rating
+
+            # Sum similarities
+            total_sim = setdefault(item2, 0)
+            total_sim[item2] += similarity
+
+    # Divide each total score by total weighting to get an average
+    rankings = [(score / total_Sim[item], item)
+                for item, score in scores.items()]
+
+    # Return rankings from highest to lowest
+    return rankings.sort().reverse()
+
+
+def load_movie_lens(path='/data/movielens'):
+    movies = {}
+    # Get movie titles
+    for line in open(path + '/u.item'):
+        (id, title) = line.split('|')[:2]
+        movies[id] = title
+
+    # Load data
+    prefs = {}
+    for line in open(path + '/u.data'):
+        (user, movieid, rating, ts) = line.split('/t')
+        prefs.setdefault(user, {})
+        prefs[user][movies[movieid]] = float(rating)
+    return prefs
+
+
