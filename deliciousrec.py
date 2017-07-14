@@ -1,6 +1,7 @@
 from pydelicious import get_popular, get_userposts, get_urlposts
 from time import time
 
+
 def initialized_user_dict(tag, count):
     user_dict = {}
     # get the top count popular posts
@@ -31,7 +32,6 @@ def fill_items(user_dict):
 
     # fill in missing items with zeros
     for ratings in user_dict.values():
-        for item in all items:
+        for item in all_items:
             if item not in ratings:
                 ratings[item] = 0
-

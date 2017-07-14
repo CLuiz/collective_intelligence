@@ -1,6 +1,8 @@
 #!/usr/bin/python
+
 from recommendations_data import critics
 from math import sqrt
+
 
 def sim_distance(prefs, person1, person2):
     """Returns a distance-based similarity score for person1 and person2
@@ -44,7 +46,8 @@ def sim_pearson(prefs, p1, p2):
 
     # Calculate Pearson score
     num = sum_prod - (sum1 * sum2 / len(si))
-    den = sqrt((sum1_sq - sum1 ** 2 / len(si)) * (sum2_sq - sum2 ** 2 / len(si)))
+    den = sqrt((sum1_sq - sum1 ** 2 /
+                len(si)) * (sum2_sq - sum2 ** 2 / len(si)))
 
     if not den:
         return 0
@@ -57,8 +60,8 @@ def top_matches(prefs, person, n=5, similarity=sim_pearson):
 
        Number of results and similarity function are optional paramters.
     """
-    scores =[(similarity(prefs, person, other), other)
-            for other in prefs if other != person]
+    scores = [(similarity(prefs, person, other), other)
+              for other in prefs if other != person]
 
     scores.sort()
 
@@ -70,22 +73,26 @@ def get_recommendations(prefs, person, similarity=sim_pearson):
 
        of every other persons ratings.
     """
-    totals, simsums = {}, {}
+    totals, sim_sums = {}, {}
     sim = [similarity(prefs, person, other)
-          for other in prefs if other != person]
+           for other in prefs if other != person]
+    for other in prefs:
+        if other == person:
+            continue
 
-    if sim > 0:
-        for item in prefs[person]:
+        if sim > 0:
+            for item in prefs[person]:
 
-            # only score unseen movies
-            if item not in prefs[person] or prefs[person][item] == 0:
-                totals.setdefault(item, 0)
-                totals[item] += prefs[other][item] * sim
-                sim_sums = setdefault(imte, 0)
-                sim_sums[item] += sim
+                # only score unseen movies
+                if item not in prefs[person] or prefs[person][item] == 0:
+                    totals.setdefault(item, 0)
+                    totals[item] += prefs[other][item] * sim
+                    sim_sums.setdefault(item, 0)
+                    sim_sums[item] += sim
 
     # Create normalized lsit
-    rankings = [(total / sim_sums[item], item) for item, total in totals.items()]
+    rankings = [(total / sim_sums[item], item)
+                for item, total in totals.items()]
 
     rankings.sort()
 
@@ -114,10 +121,13 @@ def calculate_similar_items(prefs, n=10):
     c = 0
     for item in item_prefs:
         c += 1
-        if c % 100 == 0
-            print(f'{c / len(item_prefs')}
+        if c % 100 == 0:
+            print(f'{c / len(item_prefs)}')
         # Find most similar items
-        result[item] = top_matches(item_prefs, item, n=n, similarity=sim_distance):
+        result[item] = top_matches(item_prefs,
+                                   item,
+                                   n=n,
+                                   similarity=sim_distance)
     return result
 
 
@@ -164,5 +174,3 @@ def load_movie_lens(path='/data/movielens'):
         prefs.setdefault(user, {})
         prefs[user][movies[movieid]] = float(rating)
     return prefs
-
-
