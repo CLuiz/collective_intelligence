@@ -217,7 +217,7 @@ def kmeans(rows, distance=pearson, k=4):
             break
         last_matches = best_matches
 
-    # Move sentroids to the average of their members
+    # Move centroids to the average of their members
     for i in range(k):
         avgs = [0.0] * len(rows[0])
         if len(best_matches[i]) > 0:
@@ -229,3 +229,18 @@ def kmeans(rows, distance=pearson, k=4):
             clusters[i] = avgs
 
     return best_matches
+
+
+def tanamoto(v1, v2):
+    c1, c2, shr = 0, 0, 0
+
+    for i in range(len(v1)):
+        if v1[i] != 0:
+            c1 += 1
+        if v2[i] != 0:
+            c2 += 1
+        if v1[i] != 0 and v2[i] != 0:
+            shr += 1
+
+    return 1.0 - (float(shr) / (c1 + c2 - shr))
+    
