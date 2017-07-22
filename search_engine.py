@@ -22,15 +22,42 @@ class crawler(object):
 
     # index a page
     def add_to_index(self, url, soup):
-        print(f'Indexing {url}')
+        if not self.is_indexed(url):
+            print(f'Indexing {url}')
+
+            # get individual words
+            text = self.get_text_only(soup)
+            words = self.separate_words(text)
+
+            # Get url id
+            urlid = self.get_entry_id('urllist', 'url', url)
+
+            # link each word to url
+            for i in range(len(words)):
+                if word[i] not in ignore_words:
+                    wordid = self.get_entry_id('wordlist', 'word', word)
+                    self.con.execute("INSERT INTO wordlocation(urlid, wordid, \
+                    location) values (%d,%d,%d)" % (urlid, wordid, i))
+                
+
 
     # Extract text from an html page
     def get_text_only(self, soup):
-        return None
+        v = soup.string
+        if v is None:
+            c = soup.contents
+            result_text = ''
+            for t in c:
+                subtext = self.get_text_only(t)
+                result_text += subtext + '\n'
+            return result_text
+        else:
+            return v.strip()
 
     # Separate words by non-whitespace characters
     def separate_words(self):
-        return None
+        splitter = re.compile('\\W*')
+        return [s.lower for s in splitter.split(text) if s != ""]
 
     def is_indexed(self, url):
         return False
@@ -68,6 +95,15 @@ class crawler(object):
 
     def create_index_tables(self):
         self.con.execute('CREATE table urllist(url)')
-        self.con.execute('CREATE table urllist(url)')
-        self.con.execute('CREATE table urllist(url)')
-        self.con.execute('CREATE table urllist(url)')
+        self.con.execute('CREATE table wordlist(word)')
+        self.con.execute('CREATE table wordlocation(urlid, wordid, location)')
+        self.con.execute('CREATE table link(fromid integer, toid integer)')
+        self.con.execute('CREATE table linkwords(wordid, linkid)')
+        self.con.execute('CREATE index wordidx on wordlist(word)')
+        self.con.execute('CREATE index urlidx on urllist(url)')
+        self.con.execute('CREATE index wordurlidx on wordlocation(wordid)')
+        self.con.execute('CREATE index urltoidx on link(toid)')
+        self.con.execute('CREATE index urlfromidx on link(fromid)')
+        self.db.commit()
+
+    def get_text_only
