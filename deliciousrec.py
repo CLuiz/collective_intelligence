@@ -25,7 +25,7 @@ def fill_items(user_dict):
             except:
                 print(f'Failed user {user}, retrying')
                 time.sleep(4)
-        for post in psots:
+        for post in posts:
             url = post['href']
             user_dict[user][url] = 1.0
             all_items[url] = 1

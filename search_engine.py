@@ -18,7 +18,16 @@ class crawler(object):
 
     # Auxillary function for getting an entry id an adding if not present
     def get_entry_id(self, table, field, value, create_new=True):
-        return None
+        c = self.con.execute("""SELECT rowid
+                                FROM %s
+                                WHERE %s='%s'""" % (table, field, value))
+        res = c.fetchone()
+        if res is None:
+            c = self.con.execute("""INSERT INTO %s (%s)
+                                    VALUES ('%s')""" % (table, field, value))
+            return c.lastrowid
+        else:
+            return res[0]
 
     # index a page
     def add_to_index(self, url, soup):
@@ -38,8 +47,6 @@ class crawler(object):
                     wordid = self.get_entry_id('wordlist', 'word', word)
                     self.con.execute("INSERT INTO wordlocation(urlid, wordid, \
                     location) values (%d,%d,%d)" % (urlid, wordid, i))
-                
-
 
     # Extract text from an html page
     def get_text_only(self, soup):
@@ -60,12 +67,21 @@ class crawler(object):
         return [s.lower for s in splitter.split(text) if s != ""]
 
     def is_indexed(self, url):
+        u = self.con.execute("""SELECT rowid
+                                FROM urllist
+                                WHERE url = '%s'""" % url).fetchone()
+        if u is None:
+            v = self.con.execute("""SELECT *
+                                    FROM wordlocation
+                                    WHERE urlid = %d""" % u[0]).fetchone()
+            if v is not None:
+                return True
         return False
 
     def add_link_ref(self, url1, url2, link_text):
         pass
 
-    # breadth first search to given ddepth, indexing pages on the way
+    # breadth first search to given depth, indexing pages on the way
     def crawl(self, pages, depth=2):
         for i in range(depth):
             new_pages = set()
@@ -106,4 +122,28 @@ class crawler(object):
         self.con.execute('CREATE index urlfromidx on link(fromid)')
         self.db.commit()
 
-    def get_text_only
+
+class searcher(object):
+    def __init__(self, dbname):
+        self.con = sqlite3.connect(dbname)
+
+    def __del__(self):
+        self.con.close()
+
+    def get_match_rows(self, q):
+        # Strings to build query
+        field_list = 'wO.urlid'
+        table_list = ''
+        clause_list = ''
+        word_ids = []
+
+        words = q.split(' ')
+        table_num = 0
+
+        for word in words:
+            word_rows = self.con.execute(("""SELECT rowid
+                                             FROM wordlist
+                                             WHERE word = '%s'""" %
+                                         word).fetchone())
+            if word_row is None:
+                
