@@ -141,9 +141,36 @@ class searcher(object):
         table_num = 0
 
         for word in words:
-            word_rows = self.con.execute(("""SELECT rowid
+            word_row = self.con.execute(("""SELECT rowid
                                              FROM wordlist
                                              WHERE word = '%s'""" %
                                          word).fetchone())
-            if word_row is None:
-                
+            if word_row is not None:
+                wordid = word_row[0]
+                word_ids.append(wordid)
+                if table_num > 0:
+                    table_list += ','
+                    clause_list += ' and '
+                    clause_list += 'w%d.urlid=w%d.urlid and ' % (table_num - 1,
+                                                                 table_num)
+                field_list += ',w%d.location' % table_num
+                table_list += 'wordlocation w%d' % table_num
+                clause_list += 'w%d.wordid=%d' % (table_num, wordid)
+                table_num += 1
+
+        # create query from the separate parts
+        full_query = ("""SELECT %s
+                        FROM %s
+                        WHERE %s""" % field_list, table_list, clause_list)
+        c = self.con.execute(full_query)
+        rows = [row for row in c]
+
+        return rows, word_ids
+
+    def get_scored_list(self, rows, word_ids):
+        total_scores = dict([(row[0], 0) for row in rows])
+
+        # TODO SCORING FUNCTIONS GO HERE
+
+        weights = []
+        for (weight, scores) in weights
