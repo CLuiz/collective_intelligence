@@ -172,5 +172,49 @@ class searcher(object):
 
         # TODO SCORING FUNCTIONS GO HERE
 
-        weights = []
-        for (weight, scores) in weights
+        weights = [(1.0, self.frequency_scores(rows))]
+        for (weight, scores) in weights:
+            for url in total_scores:
+                total_scores[url] += weight * scores[url]
+
+        return total_scores
+
+    def get_url_name(self, id):
+        return self.con.execute("""SELECT url
+                                    FROM urllist
+                                    WHERE rowid=%d""").fetchone()
+
+    def query(self, q):
+        rows, word_ids = self.get_match_rows(q)
+        scores = self.get_scored_list(rows, word_ids)
+        ranked_scores = sorted([(score, url)
+                                for (url, score) in scores.items()], reverse=1)
+        for (score, urlid) in ranked_scores[:10]:
+            print('%f\t%s' % (score, self.get_url_name(urlid)))
+
+    def normalize_scores(self, scores, small_is_better=0):
+        vsmall = 0.00001
+        if small_is_better:
+            min_score = min(scores.values())
+            return dict([(u, float(min_score) / max(vsmall, 1))
+                         for (u, c) in scores.items()])
+        else:
+            max_score = max(scores.values())
+            if max_score == 0:
+                max_score = vsmall
+            return dict([(u, float(c) / max_score)
+                         for (u, c) in scores.items()])
+
+    def frequency_scores(self, rows):
+        counts = dict([(row[0], 0) for row in rows])
+        for row in rows:
+            counts[row[0]] += 1
+        return self.normalize_scores(counts)
+
+    def location_score(self, rows):
+        locations = dict([(row[0], 1000000) for row in rows])
+        for row in rows:
+            loc = sum(row[1:])
+            if loc < locations[row[0]]:
+                locations[row[0]] = loc
+        return self.normalize_scores(locations, small_is_better=0)
