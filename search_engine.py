@@ -218,3 +218,26 @@ class searcher(object):
             if loc < locations[row[0]]:
                 locations[row[0]] = loc
         return self.normalize_scores(locations, small_is_better=0)
+
+    def distance_score(self, rows):
+        if len(rows[0]) <= 2:
+            return dict([(row[0], 1.0) for row in rows])
+
+        min_distance = dict([(row[0], 1e7) for row in rows])
+
+        for row in rows:
+            dist = sum(row[i] - row[i-1] for i in range(2, len(row)))
+            if dist < min_distance[row[0]]:
+                min_distance[row[0]] = dist
+
+        return self.normalize_scores(min_distance, small_is_better=1)
+
+    def inbound_link_score(self, rows):
+        unique_urls = set([row[0] for row in rows])
+        inbound_count = dict([(u,
+                             self.con.execute("""SELECT COUNT(*)
+                                                 FROM link
+                                                 WHERE toid=%d
+                                                 """ % u) .fetchone())
+                              for u in unique_urls])
+        return self.normalize_scores(inbound_count)
