@@ -122,6 +122,13 @@ class crawler(object):
         self.con.execute('CREATE index urlfromidx on link(fromid)')
         self.db.commit()
 
+    def calculate_page_rank(self, iterations=20):
+        self.con.execute("""DROP table if exists pagerank""")
+        self.con.execute("""CREATE table pagerank(urlid primary key, score)""")
+
+        self.con.execute("""INSERT INTO pagerank
+                            SELECT rowid, 1.0
+                            FROM urllist""")
 
 class searcher(object):
     def __init__(self, dbname):
