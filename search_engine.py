@@ -129,6 +129,34 @@ class crawler(object):
         self.con.execute("""INSERT INTO pagerank
                             SELECT rowid, 1.0
                             FROM urllist""")
+        self.db.commit()
+
+        for i in range(iterations):
+            print(f'Iteration {(i)}')
+            for (urlid, ) in self.con.execute("""SELECT rowid
+                                                 FROM urllist"""):
+                pr = 0.15
+
+                # Loop through linked pages
+                for (linker,) in self.con.execute("""SELECT DISTINCT fromid
+                                                     FROM link
+                                                     WHERE toid=%d""" % urlid):
+                    linkingpr = self.con.execute(
+                                    """SELECT score
+                                       FROM pagerank
+                                       WHERE urlid=%d
+                                       """ % linker).fetchone()[0]
+
+                    # Get total number of links form linker
+                    linkingcount = self.con.execute(
+                                    """SELECT COUNT(*)
+                                       FROM 
+                                    """
+                    )
+
+
+
+
 
 class searcher(object):
     def __init__(self, dbname):
