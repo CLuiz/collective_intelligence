@@ -150,12 +150,14 @@ class crawler(object):
                     # Get total number of links form linker
                     linkingcount = self.con.execute(
                                     """SELECT COUNT(*)
-                                       FROM 
-                                    """
-                    )
-
-
-
+                                       FROM link
+                                       WHERE fromid=%d
+                                       """ % linker).fetchone()[0]
+                    pr += .085 * (linkingpr / linkingcount)
+                self.con.exxecute(
+                    """UPDATE pagerank set score=%f
+                       WHERE urlid=%d""" % (pr, urlid))
+            self.db.commit()
 
 
 class searcher(object):
@@ -273,6 +275,18 @@ class searcher(object):
                              self.con.execute("""SELECT COUNT(*)
                                                  FROM link
                                                  WHERE toid=%d
-                                                 """ % u) .fetchone())
+                                              """ % u).fetchone())
                               for u in unique_urls])
         return self.normalize_scores(inbound_count)
+
+    def page_rank_score(self, rows):
+        pageranks = dict([(row[0], self.con.execute("""SELECT score
+                                                       FROM pagerank
+                                                       WHERE urlid=%d
+                                                    """
+                                                    % row[0]).fetchone()[0])
+                         for row in rows])
+        max_rank = max(pageranks.values())
+        normalized_scores = dict([(u, float(l) / max_rank)
+                                  for (u, l) in pageranks.items()])
+        return normalized_scores
