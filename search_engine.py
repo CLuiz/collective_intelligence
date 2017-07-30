@@ -292,7 +292,7 @@ class searcher(object):
         return normalized_scores
 
     def link_text_score(self, rows, word_ids):
-        link_scores = dict([(row[0]. 0) for row in rows])
+        link_scores = dict([(row[0], 0) for row in rows])
         for wordid in word_ids:
             cur = self.con.execute(
                             """SELECT link.fromid, link.toid
@@ -307,7 +307,7 @@ class searcher(object):
                                        WHERE urlid=%d
                                        """ % fromid).fetchone()[0]
                     link_scores[toid] += pr
-        max_score = max(linkscores.values())
+        max_score = max(link_scores.values())
         normalized_scores = dict([(u, float(l) / max_score)
-                                 for (u, l) in linkscores.itmes()])
-        return normalized_score
+                                 for (u, l) in link_scores.items()])
+        return normalized_scores
