@@ -290,3 +290,24 @@ class searcher(object):
         normalized_scores = dict([(u, float(l) / max_rank)
                                   for (u, l) in pageranks.items()])
         return normalized_scores
+
+    def link_text_score(self, rows, word_ids):
+        link_scores = dict([(row[0]. 0) for row in rows])
+        for wordid in word_ids:
+            cur = self.con.execute(
+                            """SELECT link.fromid, link.toid
+                               FROM linkwords, link
+                               WHERE wordid=%d
+                               AND linkwords.linkid=link.rowid""" % wordid)
+            for (fromid, toid) in cur:
+                if toid in link_scores:
+                    pr = self.con.execute(
+                                    """SELECT score
+                                       FROM pagerank
+                                       WHERE urlid=%d
+                                       """ % fromid).fetchone()[0]
+                    link_scores[toid] += pr
+        max_score = max(linkscores.values())
+        normalized_scores = dict([(u, float(l) / max_score)
+                                 for (u, l) in linkscores.itmes()])
+        return normalized_score
