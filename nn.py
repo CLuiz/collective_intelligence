@@ -79,4 +79,58 @@ class search_net(object):
             for urlid in urls:
                 self.set_strength(hiddenid, urlid, 1, 0.1)
             self.con.commit()
-            
+
+    def get_all_hidden_ids(self, wordids, urlids):
+        l1 = {}
+        for wordid in wordids:
+            cur = self.con.execute(
+                        """SELECT toid
+                           FROM wordhidden
+                           WHERE fromid=%d""" % wordid)
+            for row in cur:
+                l1[row[0]] = 1
+        for urlid in urlids:
+            cur = self.con.execute(
+                        """SELECT fromid
+                           FROM hiddenurl
+                           WHERE toid=%d""" % urlid)
+            for row in cur:
+                l1[row[0]] = 1
+        return l1.keys()
+
+    def set_up_network(self, wordids, urlids):
+        # value lists
+        self.word_ids = wordids
+        self.hidden_ids = self.get_all_hidden_ids(wordids, urlids)
+        self.url_ids = urlids
+
+        # node outputs
+        self.ai = float(len(self.word_ids))
+        self.ah = float(len(self.hidden_ids))
+        self.ao = float(len(self.url_ids))
+
+        # create weights matrix
+        self.wi = [[self.get_strength(word_id, hidden_id, 0)
+                    for hidden_id in self.hidden_ids]
+                   for word_id in self.word_ids]
+
+        self.wo = [[self.get_strength(hidden_id, url_id, 1)
+                    for url_id in self.url_ids]
+                   for hidden_id in self.hidden_ids]
+
+    def feed_forward(self):
+        for i in range(len(self.word_ids)):
+            self.ai[i] = 0
+        # hidden activations
+        for j in range(len(self.hidden_ids)):
+            total = 0.0
+            for i in range(len(self.word_ids)):
+                total += (self.ai[i] * self.wi[i][j])
+            self.ah[j] = tanh(total)
+        # output activations
+        for k in range(len(self.url_ids)):
+            total = 0.0
+            for j in range(len(self.hidden_ids)):
+                total += (self.ah[j] * self.wo[j][k])
+                self.ao[k] = tanh(total)
+        return self.ao[:]
