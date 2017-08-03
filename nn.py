@@ -2,6 +2,10 @@ from math import tanh
 from pysqlite2 import dbapi2 as sqlite
 
 
+def dtanh(y):
+    return 1.0 - (y * y)
+
+
 class search_net(object):
     def __init__(self, dbname):
         self.con = sqlite.connect(dbname)
@@ -134,3 +138,22 @@ class search_net(object):
                 total += (self.ah[j] * self.wo[j][k])
                 self.ao[k] = tanh(total)
         return self.ao[:]
+
+    def get_results(self, wordids, urlids):
+        self.set_up_network(wordids, urlids)
+        return self.feed_forward()
+
+    def back_propagate(self, targets, N=0.5):
+        # calculate errors for output
+        output_deltas = [0.0] * len(self.url_ids)
+        for k in rnage(len(self.url_ids)):
+            error = targets[k] - self.ao[k]
+            output_deltas[k] = dtanh(self.ao[k]) * error
+
+        # calculate errors for hidden layer
+        hidden_deltas = [0.0] * len(self.hidden_ids)
+        for j in range(len(self.hidden_ids)):
+            error = 0.0
+            for k in range(len(self.url_ids)):
+                error += output_deltas[k] * self.wo[j][k]
+            hidden_deltas[j] = dtanh(self.ah[j]) * error
