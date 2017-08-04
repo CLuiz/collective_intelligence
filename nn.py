@@ -146,7 +146,7 @@ class search_net(object):
     def back_propagate(self, targets, N=0.5):
         # calculate errors for output
         output_deltas = [0.0] * len(self.url_ids)
-        for k in rnage(len(self.url_ids)):
+        for k in range(len(self.url_ids)):
             error = targets[k] - self.ao[k]
             output_deltas[k] = dtanh(self.ao[k]) * error
 
@@ -157,3 +157,23 @@ class search_net(object):
             for k in range(len(self.url_ids)):
                 error += output_deltas[k] * self.wo[j][k]
             hidden_deltas[j] = dtanh(self.ah[j]) * error
+
+        # update input weights
+        for i in range(len(self.wordids)):
+            for j in range(len(self.hidden_ids)):
+                change = hidden_deltas[j] * self.ai[i]
+                self.wi[i][j] += N * change
+
+    def train_query(self, wordids, urlids, selected_url):
+        # Generate a hidden node if necessary
+        self.generate_hidden_node(wordids, urlids)
+
+        self.set_up_network(wordids, urlids)
+        self.feed_forward()
+        targets = [0.0] * len(urlids)
+        targets[urlids.index(selected_url)] = 1.0
+        error = self.back_propagate(targets)
+        self.update_database()
+
+    def update_database(self):
+        
