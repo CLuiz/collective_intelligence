@@ -176,4 +176,16 @@ class search_net(object):
         self.update_database()
 
     def update_database(self):
-        
+        for i in range(len(self.word_ids)):
+            for j in range(len(self.hidden_ids)):
+                self.set_strength(self.word_ids[i],
+                                  self.hidden_ids[j],
+                                  0,
+                                  self.wi[i][j])
+        for j in range(len(self.hidden_ids)):
+            for k in range(len(self.url_ids)):
+                self.set_strength(self.hidden_ids[j],
+                                  self.url_ids[k],
+                                  1,
+                                  self.wo[j][k])
+        self.con.commit()
