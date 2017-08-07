@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import sqlite3
 
+import nn
+
+mynet = nn.searchnet('nn.db')
 ignore_words = set(['the', 'of', 'to', 'and', 'a', 'in', 'is', 'it'])
 
 
@@ -311,3 +314,9 @@ class searcher(object):
         normalized_scores = dict([(u, float(l) / max_score)
                                  for (u, l) in link_scores.items()])
         return normalized_scores
+
+    def nnscore(self, rows, wordids):
+        urlids = [urlid for urlid in set(row[0] for row in rows)]
+        nnres = mynet.get_results(wordids, urlids)
+        scores = dict([(urlids[i], nnres[i]) for i in range(len(urlids))])
+        return self.normalize_scores(scores)
