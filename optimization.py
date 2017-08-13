@@ -35,25 +35,36 @@ def print_schedule(r):
         origin = people[d][1]
         out = flights[(origin, destination)][r[d]]
         ret = flights[(destination, origin)][r[d + 1]]
-        print('%10%10s %5s - %5s $%3s %5s - %5s $%3s' % (name,
-                                                         origin,
-                                                         out[0], out[1], out[2],
-                                                         ret[0], ret[1], ret[2])
+        print('%10%10s %5s - %5s $%3s %5s - %5s $%3s' % (
+                                                    name,
+                                                    origin,
+                                                    out[0], out[1], out[2],
+                                                    ret[0], ret[1], ret[2]))
+
 
 def schedule_cost(sol):
     total_price = 0
     late_start_arrival = 0
     earliest_dep = 24 * 60
-    
+
     for d in range(len(sol) / 2):
         # Get inbound and outbound flights
         origin = people[d][1]
         outbound = flights[(origin, destination)][int(sol[d])]
         returnf = flights[(destination, origin)][int(sol[d + 1])]
-        
+
         # Total price is the price of all outbound and return flights
         total_price += outbound[2]
         total_price += returnf[2]
+
+        # Track latest arrival and earliest departure
+        if latest_arrival < get_minutes(outbound[1]):
+            latest_arrival = get_minutes(outbound[1])
+        if earliest_dep > get_minutes(returnf[0]):
+            earliest_dep = get_minutes(returnf[0])
+
         
+
+
 if __name__ == '__main__':
     flights = build_dataset()
