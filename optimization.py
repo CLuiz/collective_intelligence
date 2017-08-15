@@ -44,14 +44,14 @@ def print_schedule(r):
 
 def schedule_cost(sol):
     total_price = 0
-    late_start_arrival = 0
+    latest_arrival = 0
     earliest_dep = 24 * 60
 
     for d in range(len(sol) / 2):
         # Get inbound and outbound flights
         origin = people[d][1]
         outbound = flights[(origin, destination)][int(sol[d])]
-        returnf = flights[(destination, origin)][int(sol[d + 1])]
+        returnf = flights[(destination, origin)][int(sol[d+1])]
 
         # Total price is the price of all outbound and return flights
         total_price += outbound[2]
@@ -63,7 +63,18 @@ def schedule_cost(sol):
         if earliest_dep > get_minutes(returnf[0]):
             earliest_dep = get_minutes(returnf[0])
 
-        
+    total_wait = 0
+    for d in range(len(sol) / 2):
+        origin = people[d][1]
+        outbound = flights[(origin, destination)][int(sol[d])]
+        returnf = flights[(origin, destination)][int(sol[d+1])]
+        total_wait += latest_arrival - get_minutes(outbound[1])
+        total_wait += get_minutes(returnf[0]) - earliest_dep
+
+        if latest_arrival > earliest_dep:
+            total_price += 50
+
+    return total_wait + total_price
 
 
 if __name__ == '__main__':
