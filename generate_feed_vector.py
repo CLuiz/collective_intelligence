@@ -3,8 +3,7 @@ import re
 
 
 def get_word_counts(url):
-    """Return title and dictionary of words from an RSS feed.
-    """
+    """Return title and dictionary of words from an RSS feed."""
     # Parse feed
     d = feedparser.parse(url)
     wc = {}
@@ -25,8 +24,7 @@ def get_word_counts(url):
 
 
 def get_words(html):
-    """Strips words from html.
-    """
+    """Strips words from html."""
 
     # Remove all html tags
     txt = re.compile(r'<[^>]+>').sub('', html)

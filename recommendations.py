@@ -5,8 +5,7 @@ from math import sqrt
 
 
 def sim_distance(prefs, person1, person2):
-    """Returns a distance-based similarity score for person1 and person2
-    """
+    """Returns a distance-based similarity score for person1 and person2."""
     # Get dict of shared items
     si = {}
     for item in prefs[person1]:
@@ -25,8 +24,7 @@ def sim_distance(prefs, person1, person2):
 
 
 def sim_pearson(prefs, p1, p2):
-    """Returns the Pearson coefficent for p1, p2.
-    """
+    """Returns the Pearson coefficent for p1, p2."""
     # Get dict of mutually rated items
     si = {k: 1 for k in prefs[p1] if k in prefs[p2]}
 
@@ -57,7 +55,6 @@ def sim_pearson(prefs, p1, p2):
 
 def top_matches(prefs, person, n=5, similarity=sim_pearson):
     """Returns best matches for person from the pres dict.
-
        Number of results and similarity function are optional paramters.
     """
     scores = [(similarity(prefs, person, other), other)
@@ -70,7 +67,6 @@ def top_matches(prefs, person, n=5, similarity=sim_pearson):
 
 def get_recommendations(prefs, person, similarity=sim_pearson):
     """Gets receommendation for personby using a weighted average
-
        of every other persons ratings.
     """
     totals, sim_sums = {}, {}
@@ -111,7 +107,6 @@ def transform_prefs(prefs):
 
 def calculate_similar_items(prefs, n=10):
     """Create a dict of items showing which items
-
        they are most similar to.
     """
     result = {}
@@ -132,7 +127,7 @@ def calculate_similar_items(prefs, n=10):
 
 
 def get_recommended_items(prefs, item_match, user):
-    user_ratings, scores, total_sim  = ({} for i in range(3))
+    user_ratings, scores, total_sim = ({} for i in range(3))
 
     # loop over all items rated by this user
     for (item, rating) in user_ratings.items():
@@ -153,7 +148,7 @@ def get_recommended_items(prefs, item_match, user):
             total_sim[item2] += similarity
 
     # Divide each total score by total weighting to get an average
-    rankings = [(score / total_Sim[item], item)
+    rankings = [(score / total_sim[item], item)
                 for item, score in scores.items()]
 
     # Return rankings from highest to lowest
