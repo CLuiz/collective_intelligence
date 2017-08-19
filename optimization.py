@@ -77,5 +77,27 @@ def schedule_cost(sol):
     return total_wait + total_price
 
 
+def random_optimize(domain, costf):
+    """Random optimizer function"""
+
+    best = 999999999
+    bestr = None
+    for i in range(1000):
+        r = [random.randint(domain[i][0], domain[i][1])
+             for i in range(len(domain))]
+    cost = costf(r)
+
+    if cost < best:
+        best = cost
+        bestr = best
+
+    return r
+
+
+def hillclimb(domain, costf):
+    """
+    """
+    return stuff
+
 if __name__ == '__main__':
     flights = build_dataset()
