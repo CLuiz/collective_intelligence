@@ -167,7 +167,6 @@ class search_net(object):
     def train_query(self, wordids, urlids, selected_url):
         # Generate a hidden node if necessary
         self.generate_hidden_node(wordids, urlids)
-
         self.set_up_network(wordids, urlids)
         self.feed_forward()
         targets = [0.0] * len(urlids)

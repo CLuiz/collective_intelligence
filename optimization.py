@@ -1,6 +1,5 @@
 import time
 import random
-import math
 
 people = [('Seymour', 'BOS'),
           ('Franny', 'DAL'),
@@ -13,8 +12,7 @@ destination = 'LGA'
 
 
 def build_dataset(filename='data/schedule.txt'):
-    """ Creates flights dataset.
-    """
+    """ Creates flights dataset."""
     flight_data = {}
     with open(filename) as f:
         for line in f.readlines():
@@ -79,7 +77,6 @@ def schedule_cost(sol):
 
 def random_optimize(domain, costf):
     """Random optimizer function"""
-
     best = 999999999
     bestr = None
     for i in range(1000):
@@ -98,6 +95,7 @@ def hillclimb(domain, costf):
     """
     """
     return stuff
+
 
 if __name__ == '__main__':
     flights = build_dataset()
